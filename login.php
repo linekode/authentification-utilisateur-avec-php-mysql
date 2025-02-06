@@ -1,4 +1,8 @@
 <?php
+session_start();
+if (isset($_SESSION['user_id'])) {
+    header('Location: dashboard.php');
+}
 require 'config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
@@ -11,16 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
     if ($user && password_verify($password, $user['password'])) {
-        // Connexion réussie
-        # code...
-        echo "Connexion réussie ! <a href='dashboard.php'>Accéder au tableau de bord</a>";
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_nom'] = $user['nom'];
+        header('Location: dashboard.php');
+        exit();
     } else {
-        echo "Idenfiants incorrects.";
+        echo "<div class='alert alert-danger'>Identifiants incorrects.</div>";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -28,17 +33,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
-    <h2>Inscription</h2>
-    <form method="post">
-        <label for="email">Email :</label>
-        <input type="email" name="email" id="email" required><br><br>
-        <label for="password">Mot de passe :</label>
-        <input type="password" name="password" id="password" required><br><br>
-        <button type="submit" name="login">Se connecter</button>
-    </form>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title text-center">Connexion</h2>
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email :</label>
+                                <input type="email" name="email" id="email" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe :</label>
+                                <input type="password" name="password" id="password" class="form-control" required>
+                            </div>
+                            <button type="submit" name="login" class="btn btn-primary w-100">Se connecter</button>
+                        </form>
+                        <div class="mt-3 text-center">
+                            <a href="register.php" class="text-decoration-none">Pas encore inscrit? S'inscrire</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
